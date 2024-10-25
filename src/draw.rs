@@ -28,13 +28,20 @@ pub fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: 
     );
 }
 
-pub fn draw_resource(grid_position: &GridPosition, resource_size: f32) {
-    draw_rectangle(
+pub fn draw_resource(
+    grid_position: &GridPosition,
+    resource_size: f32,
+    resource_texture: &Texture2D,
+) {
+    draw_texture_ex(
+        resource_texture,
         grid_position.x as f32 * resource_size,
         grid_position.y as f32 * resource_size,
-        resource_size,
-        resource_size,
-        YELLOW,
+        WHITE,
+        DrawTextureParams {
+            dest_size: Some(vec2(resource_size, resource_size)),
+            ..Default::default()
+        },
     );
 }
 

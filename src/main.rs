@@ -43,6 +43,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let chest_texture = load_texture("assets/chest.png").await.unwrap();
+    let gold_texture = load_texture("assets/gold.png").await.unwrap();
     build_textures_atlas();
 
     let mut player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
@@ -80,7 +81,7 @@ async fn main() {
             chest_flag = true;
         }
 
-        draw_resource(&resource_position, resource_size);
+        draw_resource(&resource_position, resource_size, &gold_texture);
         draw_player(player_position);
         if chest_flag {
             draw_chest(&resource_position, resource_size, &chest_texture);
