@@ -61,3 +61,34 @@ pub fn draw_grid_lines(cell_size: f32) {
         draw_line(x, 0.0, x, screen_height(), 1.0, grid_color);
     }
 }
+
+pub fn draw_terrain(cell_size: f32, tile_decorations_texture: &Texture2D) {
+    let tile_rows_count = 1;
+    let tile_cols_count = 4;
+    let grid_rows_count = (screen_height() / cell_size) as i32 + tile_rows_count;
+    let grid_cols_count = (screen_width() / cell_size) as i32 + tile_cols_count;
+
+    for i in (0..grid_rows_count).step_by(tile_rows_count as usize) {
+        for j in (0..grid_cols_count).step_by(tile_cols_count as usize) {
+            let mut row_stagger = i % 4;
+            if row_stagger > 1 {
+                row_stagger = 5 - row_stagger;
+            }
+            let x = (j - row_stagger) as f32 * cell_size;
+            let y = i as f32 * cell_size;
+            draw_texture_ex(
+                tile_decorations_texture,
+                x,
+                y,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(
+                        cell_size * tile_cols_count as f32,
+                        cell_size * tile_rows_count as f32,
+                    )),
+                    ..Default::default()
+                },
+            );
+        }
+    }
+}

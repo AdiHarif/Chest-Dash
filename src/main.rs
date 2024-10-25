@@ -44,6 +44,7 @@ fn window_conf() -> Conf {
 async fn main() {
     let chest_texture = load_texture("assets/chest.png").await.unwrap();
     let gold_texture = load_texture("assets/gold.png").await.unwrap();
+    let tile_decorations_texture = load_texture("assets/tile_decorations.png").await.unwrap();
     build_textures_atlas();
 
     let mut player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
@@ -57,7 +58,7 @@ async fn main() {
     let mut chest_flag = false;
 
     loop {
-        clear_background(BROWN);
+        clear_background(Color::from_hex(0x9d7658));
         let mut direction = vec2(0.0, 0.0);
         if is_key_down(KeyCode::W) {
             direction.y -= 1.0;
@@ -81,6 +82,7 @@ async fn main() {
             chest_flag = true;
         }
 
+        draw_terrain(resource_size, &tile_decorations_texture);
         draw_resource(&resource_position, resource_size, &gold_texture);
         draw_player(player_position);
         if chest_flag {
