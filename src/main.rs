@@ -60,6 +60,7 @@ fn window_conf() -> Conf {
 const RESOURCES_ROWS_COUNT: u32 = 3;
 const GRID_ROWS_COUNT: u32 = 15;
 const GRID_COLS_COUNT: u32 = 15;
+const PLAYER_REACH_DISTANCE: f32 = 2.5 * TILE_SIZE;
 
 fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
     let resources_rows_spacing = grid_rows_count / (RESOURCES_ROWS_COUNT + 1) + 1;
@@ -128,7 +129,17 @@ async fn main() {
         if is_mouse_button_released(MouseButton::Left) {
             for resource in &mut resources {
                 if is_mouse_over_resource(&resource.position, TILE_SIZE) {
-                    if resource.state == ResourceState::Free {
+                    if ResourceState::Taken == resource.state {
+                        continue;
+                    }
+
+                    let resource_screen_position = vec2(
+                        (resource.position.x as f32 + 0.5) * TILE_SIZE,
+                        (resource.position.y as f32 + 0.5) * TILE_SIZE,
+                    );
+                    let distance = (resource_screen_position - player.position).length();
+
+                    if distance < PLAYER_REACH_DISTANCE {
                         resource.state = ResourceState::Taken;
                     }
                 }
