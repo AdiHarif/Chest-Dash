@@ -1,13 +1,30 @@
 use macroquad::prelude::*;
 
+use crate::player_sprite::PLAYER_DEST_SIZE;
 use crate::GridPosition;
+use crate::Player;
 
-pub fn draw_player(player_position: Vec2) {
-    let left = vec2(player_position.x - 30.0, player_position.y + 30.0);
-    let right = vec2(player_position.x + 30.0, player_position.y + 30.0);
-    let top = vec2(player_position.x, player_position.y - 30.0);
+pub fn draw_player(player: &Player) {
+    let Player {
+        position,
+        texture,
+        sprite,
+        ..
+    } = player;
 
-    draw_triangle(left, right, top, PINK);
+    let Vec2 { x, y } = *position - vec2(PLAYER_DEST_SIZE / 2.0, PLAYER_DEST_SIZE / 2.0);
+    draw_texture_ex(
+        texture,
+        x,
+        y,
+        WHITE,
+        DrawTextureParams {
+            source: Some(sprite.frame().source_rect),
+            dest_size: Some(vec2(PLAYER_DEST_SIZE, PLAYER_DEST_SIZE)),
+            flip_x: player.flip_x,
+            ..Default::default()
+        },
+    );
 }
 
 pub fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: &Texture2D) {

@@ -1,8 +1,14 @@
 mod draw;
+mod player;
+mod player_sprite;
 
 use draw::*;
+use player::*;
+use player_sprite::get_player_sprite;
 
 use macroquad::prelude::*;
+
+const TILE_SIZE: f32 = 64.0;
 
 #[derive(PartialEq)]
 struct GridPosition {
@@ -45,15 +51,18 @@ async fn main() {
     let chest_texture = load_texture("assets/chest.png").await.unwrap();
     let gold_texture = load_texture("assets/gold.png").await.unwrap();
     let tile_decorations_texture = load_texture("assets/tile_decorations.png").await.unwrap();
+    let player_texture = load_texture("assets/player_spritesheet.png").await.unwrap();
     build_textures_atlas();
 
-    let mut player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
-    let resource_size = 64.0;
+    let player_sprite = get_player_sprite();
+
+    let player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
+    let mut player = Player::new(player_position, player_texture, player_sprite);
+    let resource_size = TILE_SIZE;
     let resource_position = GridPosition::from_screen_coordinates(
         vec2(screen_width() / 2.0, screen_height() / 2.0),
         resource_size,
     );
-    let speed = 5.0;
 
     let mut chest_flag = false;
 
@@ -73,7 +82,7 @@ async fn main() {
             direction.x += 1.0;
         }
 
-        player_position += direction * speed;
+        player.update(&direction);
 
         if is_mouse_button_released(MouseButton::Left)
             && !chest_flag
@@ -84,7 +93,7 @@ async fn main() {
 
         draw_terrain(resource_size, &tile_decorations_texture);
         draw_resource(&resource_position, resource_size, &gold_texture);
-        draw_player(player_position);
+        draw_player(&player);
         if chest_flag {
             draw_chest(&resource_position, resource_size, &chest_texture);
         }
