@@ -16,6 +16,17 @@ struct GridPosition {
     y: i32,
 }
 
+#[derive(PartialEq)]
+enum ResourceState {
+    Free,
+    Taken,
+}
+
+struct Resource {
+    position: GridPosition,
+    state: ResourceState,
+}
+
 fn is_mouse_over_resource(resource_position: &GridPosition, resource_size: f32) -> bool {
     let mouse_vector = Vec2 {
         x: mouse_position().0,
@@ -38,12 +49,39 @@ impl GridPosition {
 fn window_conf() -> Conf {
     Conf {
         window_title: "MyGame".to_owned(),
-        window_width: 640,
-        window_height: 640,
+        window_width: GRID_COLS_COUNT as i32 * TILE_SIZE as i32,
+        window_height: GRID_ROWS_COUNT as i32 * TILE_SIZE as i32,
         fullscreen: false,
         window_resizable: false,
         ..Default::default()
     }
+}
+
+const RESOURCES_ROWS_COUNT: u32 = 3;
+const GRID_ROWS_COUNT: u32 = 15;
+const GRID_COLS_COUNT: u32 = 15;
+
+fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
+    let resources_rows_spacing = grid_rows_count / (RESOURCES_ROWS_COUNT + 1) + 1;
+    let resources_cols_spacing = grid_cols_count / (RESOURCES_ROWS_COUNT + 1) + 1;
+    let mut resources = Vec::new();
+
+    for i in (resources_rows_spacing - 1..grid_rows_count).step_by(resources_rows_spacing as usize)
+    {
+        for j in
+            (resources_cols_spacing - 1..grid_cols_count).step_by(resources_cols_spacing as usize)
+        {
+            resources.push(Resource {
+                position: GridPosition {
+                    x: i as i32,
+                    y: j as i32,
+                },
+                state: ResourceState::Free,
+            });
+        }
+    }
+
+    resources
 }
 
 #[macroquad::main(window_conf)]
@@ -58,12 +96,7 @@ async fn main() {
 
     let player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
     let mut player = Player::new(player_position, player_texture, player_sprite);
-    let resource_position = GridPosition::from_screen_coordinates(
-        vec2(screen_width() / 2.0, screen_height() / 2.0),
-        TILE_SIZE,
-    );
-
-    let mut chest_flag = false;
+    let mut resources = initalize_resources(GRID_ROWS_COUNT, GRID_COLS_COUNT);
 
     loop {
         clear_background(Color::from_hex(0x9d7658));
@@ -83,19 +116,24 @@ async fn main() {
 
         player.update(&direction);
 
-        if is_mouse_button_released(MouseButton::Left)
-            && !chest_flag
-            && is_mouse_over_resource(&resource_position, TILE_SIZE)
-        {
-            chest_flag = true;
+        if is_mouse_button_released(MouseButton::Left) {
+            for resource in &mut resources {
+                if is_mouse_over_resource(&resource.position, TILE_SIZE) {
+                    if resource.state == ResourceState::Free {
+                        resource.state = ResourceState::Taken;
+                    }
+                }
+            }
         }
 
         draw_terrain(TILE_SIZE, &tile_decorations_texture);
-        draw_resource(&resource_position, TILE_SIZE, &gold_texture);
-        draw_player(&player);
-        if chest_flag {
-            draw_chest(&resource_position, TILE_SIZE, &chest_texture);
+        for resource in &resources {
+            draw_resource(&resource.position, TILE_SIZE, &gold_texture);
+            if resource.state == ResourceState::Taken {
+                draw_chest(&resource.position, TILE_SIZE, &chest_texture);
+            }
         }
+        draw_player(&player);
 
         draw_grid_lines(TILE_SIZE);
 
