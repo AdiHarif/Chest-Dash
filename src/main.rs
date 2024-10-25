@@ -19,7 +19,8 @@ struct GridPosition {
 #[derive(PartialEq)]
 enum ResourceState {
     Free,
-    Taken,
+    TakenByPlayer,
+    TakenByEnemy,
 }
 
 struct Resource {
@@ -88,6 +89,7 @@ fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resour
 #[macroquad::main(window_conf)]
 async fn main() {
     let chest_texture = load_texture("assets/chest.png").await.unwrap();
+    let enemy_chest_texture = load_texture("assets/enemy_chest.png").await.unwrap();
     let gold_texture = load_texture("assets/gold.png").await.unwrap();
     let tile_decorations_texture = load_texture("assets/tile_decorations.png").await.unwrap();
     let player_texture = load_texture("assets/player_spritesheet.png").await.unwrap();
@@ -129,7 +131,7 @@ async fn main() {
         if is_mouse_button_released(MouseButton::Left) {
             for resource in &mut resources {
                 if is_mouse_over_resource(&resource.position, TILE_SIZE) {
-                    if ResourceState::Taken == resource.state {
+                    if ResourceState::TakenByPlayer == resource.state {
                         continue;
                     }
 
@@ -140,7 +142,7 @@ async fn main() {
                     let distance = (resource_screen_position - player.position).length();
 
                     if distance < PLAYER_REACH_DISTANCE {
-                        resource.state = ResourceState::Taken;
+                        resource.state = ResourceState::TakenByPlayer;
                     }
                 }
             }
@@ -149,8 +151,11 @@ async fn main() {
         draw_terrain(TILE_SIZE, &tile_decorations_texture);
         for resource in &resources {
             draw_resource(&resource.position, TILE_SIZE, &gold_texture);
-            if resource.state == ResourceState::Taken {
+            if resource.state == ResourceState::TakenByPlayer {
                 draw_chest(&resource.position, TILE_SIZE, &chest_texture);
+            }
+            if resource.state == ResourceState::TakenByEnemy {
+                draw_chest(&resource.position, TILE_SIZE, &enemy_chest_texture);
             }
         }
         draw_player(&player);
