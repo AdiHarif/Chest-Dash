@@ -94,8 +94,8 @@ async fn main() {
 
     let player_sprite = get_player_sprite();
 
-    let player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
-    let mut player = Player::new(player_position, player_texture, player_sprite);
+    let player_starting_position = vec2(1.5 * TILE_SIZE, screen_height() / 2.0);
+    let mut player = Player::new(player_starting_position, player_texture, player_sprite);
     let mut resources = initalize_resources(GRID_ROWS_COUNT, GRID_COLS_COUNT);
 
     loop {
