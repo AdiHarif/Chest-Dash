@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use crate::GridPosition;
+
 pub fn draw_player(player_position: Vec2) {
     let left = vec2(player_position.x - 30.0, player_position.y + 30.0);
     let right = vec2(player_position.x + 30.0, player_position.y + 30.0);
@@ -8,17 +10,21 @@ pub fn draw_player(player_position: Vec2) {
     draw_triangle(left, right, top, PINK);
 }
 
-pub fn draw_drill(drill_position: Vec2, drill_size: f32) {
-    let Vec2 { x, y } = drill_position;
+pub fn draw_drill(grid_position: &GridPosition, drill_size: f32) {
+    let screen_position = Vec2 {
+        x: grid_position.x as f32 * drill_size + drill_size / 2.0,
+        y: grid_position.y as f32 * drill_size + drill_size / 2.0,
+    };
+    let Vec2 { x, y } = screen_position;
     let r = drill_size / 2.0;
     let color = RED;
     draw_circle(x, y, r, color);
 }
 
-pub fn draw_resource(resource_position: Vec2, resource_size: f32) {
+pub fn draw_resource(grid_position: &GridPosition, resource_size: f32) {
     draw_rectangle(
-        resource_position.x - resource_size / 2.0,
-        resource_position.y - resource_size / 2.0,
+        grid_position.x as f32 * resource_size,
+        grid_position.y as f32 * resource_size,
         resource_size,
         resource_size,
         YELLOW,
