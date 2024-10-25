@@ -90,12 +90,20 @@ async fn main() {
     let gold_texture = load_texture("assets/gold.png").await.unwrap();
     let tile_decorations_texture = load_texture("assets/tile_decorations.png").await.unwrap();
     let player_texture = load_texture("assets/player_spritesheet.png").await.unwrap();
+    let enemy_texture = load_texture("assets/enemy_spritesheet.png").await.unwrap();
     build_textures_atlas();
 
     let player_sprite = get_player_sprite();
-
     let player_starting_position = vec2(1.5 * TILE_SIZE, screen_height() / 2.0);
     let mut player = Player::new(player_starting_position, player_texture, player_sprite);
+
+    let enemy_sprite = get_player_sprite();
+    let enemy_starting_position = vec2(
+        screen_width() - player_starting_position.x,
+        player_starting_position.y,
+    );
+    let mut enemy = Player::new(enemy_starting_position, enemy_texture, enemy_sprite);
+
     let mut resources = initalize_resources(GRID_ROWS_COUNT, GRID_COLS_COUNT);
 
     loop {
@@ -115,6 +123,7 @@ async fn main() {
         }
 
         player.update(&direction);
+        enemy.update(&vec2(0.0, 0.0));
 
         if is_mouse_button_released(MouseButton::Left) {
             for resource in &mut resources {
@@ -134,6 +143,7 @@ async fn main() {
             }
         }
         draw_player(&player);
+        draw_player(&enemy);
 
         draw_grid_lines(TILE_SIZE);
 
