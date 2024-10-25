@@ -13,7 +13,19 @@ fn is_mouse_over_resource(resource_position: Vec2, resource_size: f32) -> bool {
 
     x >= x1 && x <= x2 && y >= y1 && y <= y2
 }
-#[macroquad::main("MyGame")]
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "MyGame".to_owned(),
+        window_width: 640,
+        window_height: 640,
+        fullscreen: false,
+        window_resizable: false,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
 async fn main() {
     let mut player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
     let resource_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
