@@ -50,7 +50,7 @@ async fn main() {
     );
     let speed = 5.0;
 
-    let mut drill_flag = false;
+    let mut chest_flag = false;
 
     loop {
         clear_background(BROWN);
@@ -71,16 +71,16 @@ async fn main() {
         player_position += direction * speed;
 
         if is_mouse_button_released(MouseButton::Left)
-            && !drill_flag
+            && !chest_flag
             && is_mouse_over_resource(&resource_position, resource_size)
         {
-            drill_flag = true;
+            chest_flag = true;
         }
 
         draw_resource(&resource_position, resource_size);
         draw_player(player_position);
-        if drill_flag {
-            draw_drill(&resource_position, resource_size);
+        if chest_flag {
+            draw_chest(&resource_position, resource_size);
         }
 
         draw_grid_lines(resource_size);
