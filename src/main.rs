@@ -1,5 +1,5 @@
 mod draw;
-use draw::{draw_drill, draw_player, draw_resource};
+use draw::*;
 
 use macroquad::prelude::*;
 
@@ -52,6 +52,8 @@ async fn main() {
         if drill_flag {
             draw_drill(resource_position, resource_size);
         }
+
+        draw_grid_lines(resource_size);
 
         next_frame().await
     }

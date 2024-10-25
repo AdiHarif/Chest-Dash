@@ -24,3 +24,20 @@ pub fn draw_resource(resource_position: Vec2, resource_size: f32) {
         YELLOW,
     );
 }
+
+pub fn draw_grid_lines(cell_size: f32) {
+    let grid_color = Color::new(0.0, 0.0, 0.0, 0.5);
+
+    let rows_count = (screen_height() / cell_size) as u32;
+    let cols_count = (screen_width() / cell_size) as u32;
+
+    for i in 0..rows_count + 1 {
+        let y = i as f32 * cell_size;
+        draw_line(0.0, y, screen_width(), y, 1.0, grid_color);
+    }
+
+    for i in 0..cols_count + 1 {
+        let x = i as f32 * cell_size;
+        draw_line(x, 0.0, x, screen_height(), 1.0, grid_color);
+    }
+}
