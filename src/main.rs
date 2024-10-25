@@ -147,6 +147,13 @@ async fn main() {
 
         draw_grid_lines(TILE_SIZE);
 
+        draw_text(
+            &format!("FPS: {}", get_fps()),
+            10.0,
+            screen_height() - 20.0,
+            30.0,
+            BLACK,
+        );
         next_frame().await
     }
 }
