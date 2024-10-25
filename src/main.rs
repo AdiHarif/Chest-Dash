@@ -58,10 +58,9 @@ async fn main() {
 
     let player_position = vec2(screen_width() / 2.0, screen_height() / 2.0);
     let mut player = Player::new(player_position, player_texture, player_sprite);
-    let resource_size = TILE_SIZE;
     let resource_position = GridPosition::from_screen_coordinates(
         vec2(screen_width() / 2.0, screen_height() / 2.0),
-        resource_size,
+        TILE_SIZE,
     );
 
     let mut chest_flag = false;
@@ -86,19 +85,19 @@ async fn main() {
 
         if is_mouse_button_released(MouseButton::Left)
             && !chest_flag
-            && is_mouse_over_resource(&resource_position, resource_size)
+            && is_mouse_over_resource(&resource_position, TILE_SIZE)
         {
             chest_flag = true;
         }
 
-        draw_terrain(resource_size, &tile_decorations_texture);
-        draw_resource(&resource_position, resource_size, &gold_texture);
+        draw_terrain(TILE_SIZE, &tile_decorations_texture);
+        draw_resource(&resource_position, TILE_SIZE, &gold_texture);
         draw_player(&player);
         if chest_flag {
-            draw_chest(&resource_position, resource_size, &chest_texture);
+            draw_chest(&resource_position, TILE_SIZE, &chest_texture);
         }
 
-        draw_grid_lines(resource_size);
+        draw_grid_lines(TILE_SIZE);
 
         next_frame().await
     }
