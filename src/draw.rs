@@ -10,15 +10,22 @@ pub fn draw_player(player_position: Vec2) {
     draw_triangle(left, right, top, PINK);
 }
 
-pub fn draw_chest(grid_position: &GridPosition, chest_size: f32) {
+pub fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: &Texture2D) {
     let screen_position = Vec2 {
-        x: grid_position.x as f32 * chest_size + chest_size / 2.0,
-        y: grid_position.y as f32 * chest_size + chest_size / 2.0,
+        x: grid_position.x as f32 * chest_size,
+        y: grid_position.y as f32 * chest_size,
     };
     let Vec2 { x, y } = screen_position;
-    let r = chest_size / 2.0;
-    let color = RED;
-    draw_circle(x, y, r, color);
+    draw_texture_ex(
+        chest_texture,
+        x,
+        y,
+        WHITE,
+        DrawTextureParams {
+            dest_size: Some(vec2(chest_size, chest_size)),
+            ..Default::default()
+        },
+    );
 }
 
 pub fn draw_resource(grid_position: &GridPosition, resource_size: f32) {
