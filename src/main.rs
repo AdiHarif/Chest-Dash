@@ -154,6 +154,9 @@ async fn main() {
         if is_key_down(KeyCode::D) {
             direction.x += 1.0;
         }
+        if (direction.x != 0.0 || direction.y != 0.0) {
+            direction = direction.normalize();
+        }
 
         player.update(&direction);
         ai::update_enemy(&mut resources, &mut enemy);
