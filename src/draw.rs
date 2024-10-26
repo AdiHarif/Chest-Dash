@@ -166,3 +166,8 @@ pub fn draw_bounding_box() {
         },
     );
 }
+
+pub fn draw_loading_screen() {
+    clear_background(BROWN);
+    draw_text("Loading...", 10.0, 40.0, 50.0, BLACK);
+}

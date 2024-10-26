@@ -123,6 +123,9 @@ fn get_tile_size() -> f32 {
 
 #[macroquad::main("MyGame")]
 async fn main() {
+    draw_loading_screen();
+    next_frame().await;
+
     let mut texture_manager = TextureManager::new();
     texture_manager.load_all_textures().await;
 
