@@ -148,6 +148,7 @@ async fn main() {
 
     loop {
         clear_background(Color::from_hex(0x9d7658));
+        show_hud(player.score, enemy.score);
         match status {
             GameStatus::Starting => {
                 let clicked = show_start_button();
@@ -225,14 +226,6 @@ async fn main() {
                 }
             }
         }
-
-        draw_text(
-            &format!("FPS: {}", get_fps()),
-            10.0,
-            screen_height() - 20.0,
-            30.0,
-            BLACK,
-        );
         next_frame().await
     }
 }

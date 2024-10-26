@@ -108,23 +108,6 @@ fn draw_terrain(cell_size: f32, tile_decorations_texture: &Texture2D) {
     }
 }
 
-fn draw_scores(player_score: f32, enemy_score: f32) {
-    let score_font_size = 50.0;
-    let score_height = 50.0;
-
-    let player_text = format!("Player: {:>6.2}", player_score);
-    draw_text(&player_text, 10.0, score_height, score_font_size, BLACK);
-
-    let enemy_text = format!("Enemy: {:>6.2}", enemy_score);
-    draw_text(
-        &enemy_text,
-        screen_width() - 300.0,
-        score_height,
-        score_font_size,
-        BLACK,
-    );
-}
-
 use crate::texture_manager::TextureManager;
 use crate::GRID_COLS_COUNT;
 use crate::GRID_ROWS_COUNT;
@@ -163,8 +146,6 @@ pub fn draw_frame(
 
     draw_player(&enemy);
     draw_player(&player);
-
-    draw_scores(player.score, enemy.score);
 
     draw_rectangle_lines_ex(
         0.0,
