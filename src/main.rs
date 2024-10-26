@@ -193,10 +193,10 @@ async fn main() {
                 draw_chest(&resource.position, TILE_SIZE, &enemy_chest_texture);
             }
         }
-        draw_player(&player);
-        draw_player(&enemy);
-
         draw_grid_lines(TILE_SIZE);
+
+        draw_player(&enemy);
+        draw_player(&player);
 
         draw_scores(player.score, enemy.score);
 
