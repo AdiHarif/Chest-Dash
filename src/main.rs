@@ -88,6 +88,22 @@ fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resour
     resources
 }
 
+fn update_score(player: &mut Player, enemy: &mut Player, resources: &Vec<Resource>) {
+    let player_chests = resources
+        .iter()
+        .filter(|r| r.state == ResourceState::TakenByPlayer)
+        .count();
+
+    let enemy_chests = resources
+        .iter()
+        .filter(|r| r.state == ResourceState::TakenByEnemy)
+        .count();
+
+    let frame_duration = get_frame_time();
+    player.score += player_chests as f32 * frame_duration;
+    enemy.score += enemy_chests as f32 * frame_duration;
+}
+
 #[macroquad::main(window_conf)]
 async fn main() {
     let chest_texture = load_texture("assets/chest.png").await.unwrap();
@@ -162,6 +178,8 @@ async fn main() {
             }
         }
 
+        update_score(&mut player, &mut enemy, &resources);
+
         draw_terrain(TILE_SIZE, &tile_decorations_texture);
         for resource in &resources {
             draw_resource(&resource.position, TILE_SIZE, &gold_texture);
@@ -176,6 +194,8 @@ async fn main() {
         draw_player(&enemy);
 
         draw_grid_lines(TILE_SIZE);
+
+        draw_scores(player.score, enemy.score);
 
         draw_text(
             &format!("FPS: {}", get_fps()),

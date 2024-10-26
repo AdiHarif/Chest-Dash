@@ -7,6 +7,7 @@ pub struct Player {
     pub sprite: AnimatedSprite,
     speed: f32,
     pub reach: f32,
+    pub score: f32,
     pub flip_x: bool,
 }
 
@@ -24,6 +25,7 @@ impl Player {
             sprite,
             speed,
             reach,
+            score: 0.0,
             flip_x: false,
         }
     }
