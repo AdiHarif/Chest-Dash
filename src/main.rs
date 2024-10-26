@@ -63,7 +63,7 @@ const RESOURCES_ROWS_COUNT: u32 = 3;
 const GRID_ROWS_COUNT: u32 = 15;
 const GRID_COLS_COUNT: u32 = 15;
 const PLAYER_REACH_DISTANCE: f32 = 2.5 * TILE_SIZE;
-const PLAYER_SPEED: f32 = 5.0;
+const PLAYER_SPEED: f32 = TILE_SIZE * 3.0;
 
 fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
     let resources_rows_spacing = grid_rows_count / (RESOURCES_ROWS_COUNT + 1) + 1;
