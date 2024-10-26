@@ -1,8 +1,6 @@
-use crate::TILE_SIZE;
 use macroquad::experimental::animation::*;
 
 const PLAYER_FRAME_SIZE: u32 = 48;
-pub const PLAYER_DEST_SIZE: f32 = TILE_SIZE * 3.0;
 const PLAYER_FPS: u32 = 12;
 
 pub fn get_player_sprite() -> AnimatedSprite {

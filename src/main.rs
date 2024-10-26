@@ -16,8 +16,6 @@ use macroquad::{
     ui::{root_ui, Skin},
 };
 
-const TILE_SIZE: f32 = 64.0;
-
 #[derive(PartialEq)]
 struct GridPosition {
     x: i32,
@@ -55,22 +53,11 @@ impl GridPosition {
     }
 }
 
-fn window_conf() -> Conf {
-    Conf {
-        window_title: "MyGame".to_owned(),
-        window_width: GRID_COLS_COUNT as i32 * TILE_SIZE as i32,
-        window_height: GRID_ROWS_COUNT as i32 * TILE_SIZE as i32,
-        fullscreen: false,
-        window_resizable: false,
-        ..Default::default()
-    }
-}
-
 const RESOURCES_ROWS_COUNT: u32 = 3;
 const GRID_ROWS_COUNT: u32 = 15;
 const GRID_COLS_COUNT: u32 = 15;
-const PLAYER_REACH_DISTANCE: f32 = 2.5 * TILE_SIZE;
-const PLAYER_SPEED: f32 = TILE_SIZE * 3.0;
+const PLAYER_REACH_DISTANCE: f32 = 2.5; // tiles
+const PLAYER_SPEED: f32 = 3.0; // tiles per second
 const WIN_CONDITION: f32 = 50.0;
 
 fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
@@ -118,7 +105,14 @@ enum GameStatus {
     GameOver,
 }
 
-#[macroquad::main(window_conf)]
+fn get_tile_size() -> f32 {
+    f32::min(
+        screen_width() / GRID_COLS_COUNT as f32,
+        screen_height() / GRID_ROWS_COUNT as f32,
+    )
+}
+
+#[macroquad::main("MyGame")]
 async fn main() {
     let mut texture_manager = TextureManager::new();
     texture_manager.load_all_textures().await;
@@ -126,7 +120,7 @@ async fn main() {
     initialize_ui();
 
     let player_sprite = get_player_sprite();
-    let player_starting_position = vec2(1.5 * TILE_SIZE, screen_height() / 2.0);
+    let player_starting_position = vec2(1.5 * get_tile_size(), screen_height() / 2.0);
     let mut player = Player::new(
         player_starting_position,
         texture_manager.get("player").unwrap().clone(),
@@ -137,7 +131,7 @@ async fn main() {
 
     let enemy_sprite = get_player_sprite();
     let enemy_starting_position = vec2(
-        screen_width() - player_starting_position.x,
+        (GRID_COLS_COUNT as f32 * get_tile_size()) - player_starting_position.x,
         player_starting_position.y,
     );
     let mut enemy = Player::new(
@@ -182,20 +176,21 @@ async fn main() {
                 player.update(&direction);
                 ai::update_enemy(&mut resources, &mut enemy);
 
+                let tile_size = get_tile_size();
                 if is_mouse_button_released(MouseButton::Left) {
                     for resource in &mut resources {
-                        if is_mouse_over_resource(&resource.position, TILE_SIZE) {
+                        if is_mouse_over_resource(&resource.position, tile_size) {
                             if ResourceState::TakenByPlayer == resource.state {
                                 continue;
                             }
 
                             let resource_screen_position = vec2(
-                                (resource.position.x as f32 + 0.5) * TILE_SIZE,
-                                (resource.position.y as f32 + 0.5) * TILE_SIZE,
+                                (resource.position.x as f32 + 0.5) * tile_size,
+                                (resource.position.y as f32 + 0.5) * tile_size,
                             );
                             let distance = (resource_screen_position - player.position).length();
 
-                            if distance < PLAYER_REACH_DISTANCE {
+                            if distance < player.reach * tile_size {
                                 resource.state = ResourceState::TakenByPlayer;
                             }
                         }

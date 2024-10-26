@@ -1,9 +1,9 @@
 use macroquad::prelude::*;
 
+use crate::get_tile_size;
 use crate::Player;
 use crate::Resource;
 use crate::ResourceState;
-use crate::TILE_SIZE;
 
 pub fn get_closest_resource_index(resources: &Vec<Resource>, position: &Vec2) -> Option<usize> {
     let mut closest_resource_index = None;
@@ -11,9 +11,10 @@ pub fn get_closest_resource_index(resources: &Vec<Resource>, position: &Vec2) ->
 
     for (i, resource) in resources.into_iter().enumerate() {
         if resource.state != ResourceState::TakenByEnemy {
+            let tile_size = get_tile_size();
             let resource_position = Vec2 {
-                x: (resource.position.x as f32 + 0.5) * TILE_SIZE,
-                y: (resource.position.y as f32 + 0.5) * TILE_SIZE,
+                x: (resource.position.x as f32 + 0.5) * tile_size,
+                y: (resource.position.y as f32 + 0.5) * tile_size,
             };
             let distance = position.distance(resource_position);
             if distance < closest_distance {
@@ -35,11 +36,12 @@ pub fn update_enemy(resources: &mut Vec<Resource>, enemy: &mut Player) {
 
     if let Some(closest_resource_index) = closest_resource_index {
         let closest_resource = &resources[closest_resource_index];
+        let tile_size = get_tile_size();
         let closest_resource_position = Vec2 {
-            x: (closest_resource.position.x as f32 + 0.5) * TILE_SIZE,
-            y: (closest_resource.position.y as f32 + 0.5) * TILE_SIZE,
+            x: (closest_resource.position.x as f32 + 0.5) * tile_size,
+            y: (closest_resource.position.y as f32 + 0.5) * tile_size,
         };
-        if enemy.position.distance(closest_resource_position) < enemy.reach {
+        if enemy.position.distance(closest_resource_position) < enemy.reach * tile_size {
             resources[closest_resource_index].state = ResourceState::TakenByEnemy;
             enemy.update(&vec2(0.0, 0.0));
         } else {

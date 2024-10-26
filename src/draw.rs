@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::player_sprite::PLAYER_DEST_SIZE;
+use crate::get_tile_size;
 use crate::GridPosition;
 use crate::Player;
 
@@ -11,8 +11,9 @@ fn draw_player(player: &Player) {
         sprite,
         ..
     } = player;
+    let player_dest_size = get_tile_size() * 3.0;
 
-    let Vec2 { x, y } = *position - vec2(PLAYER_DEST_SIZE / 2.0, PLAYER_DEST_SIZE / 2.0);
+    let Vec2 { x, y } = *position - vec2(player_dest_size / 2.0, player_dest_size / 2.0);
     draw_texture_ex(
         texture,
         x,
@@ -20,7 +21,7 @@ fn draw_player(player: &Player) {
         WHITE,
         DrawTextureParams {
             source: Some(sprite.frame().source_rect),
-            dest_size: Some(vec2(PLAYER_DEST_SIZE, PLAYER_DEST_SIZE)),
+            dest_size: Some(vec2(player_dest_size, player_dest_size)),
             flip_x: player.flip_x,
             ..Default::default()
         },
@@ -124,7 +125,6 @@ fn draw_scores(player_score: f32, enemy_score: f32) {
 }
 
 use crate::texture_manager::TextureManager;
-use crate::TILE_SIZE;
 use crate::{Resource, ResourceState};
 
 pub fn draw_frame(
@@ -133,29 +133,30 @@ pub fn draw_frame(
     resources: &Vec<Resource>,
     texture_manager: &TextureManager,
 ) {
-    draw_terrain(TILE_SIZE, &texture_manager.get("tile_decorations").unwrap());
+    let tile_size = get_tile_size();
+    draw_terrain(tile_size, &texture_manager.get("tile_decorations").unwrap());
     for resource in resources {
         draw_resource(
             &resource.position,
-            TILE_SIZE,
+            tile_size,
             &texture_manager.get("gold").unwrap(),
         );
         if resource.state == ResourceState::TakenByPlayer {
             draw_chest(
                 &resource.position,
-                TILE_SIZE,
+                tile_size,
                 &texture_manager.get("chest").unwrap(),
             );
         }
         if resource.state == ResourceState::TakenByEnemy {
             draw_chest(
                 &resource.position,
-                TILE_SIZE,
+                tile_size,
                 &texture_manager.get("enemy_chest").unwrap(),
             );
         }
     }
-    draw_grid_lines(TILE_SIZE);
+    draw_grid_lines(tile_size);
 
     draw_player(&enemy);
     draw_player(&player);
