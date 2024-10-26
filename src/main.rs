@@ -12,6 +12,7 @@ use texture_manager::TextureManager;
 use ui::*;
 
 use macroquad::{
+    audio::*,
     prelude::*,
     ui::{root_ui, Skin},
 };
@@ -66,6 +67,7 @@ const GRID_COLS_COUNT: u32 = 15;
 const PLAYER_REACH_DISTANCE: f32 = 2.5; // tiles
 const PLAYER_SPEED: f32 = 3.0; // tiles per second
 const WIN_CONDITION: f32 = 50.0;
+const BGM_VOLUME: f32 = 0.25;
 
 fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
     let resources_rows_spacing = grid_rows_count / (RESOURCES_ROWS_COUNT + 1) + 1;
@@ -125,6 +127,21 @@ async fn main() {
     texture_manager.load_all_textures().await;
 
     initialize_ui();
+
+    let success_sound = load_sound("assets/sfx/success.wav").await.unwrap();
+    let failure_sound = load_sound("assets/sfx/failure.wav").await.unwrap();
+    let win_sound = load_sound("assets/sfx/win.wav").await.unwrap();
+    let lose_sound = load_sound("assets/sfx/lose.wav").await.unwrap();
+    let bgm = load_sound("assets/sfx/bgm.ogg").await.unwrap();
+
+    play_sound(
+        &bgm,
+        PlaySoundParams {
+            volume: BGM_VOLUME,
+            looped: true,
+        },
+    );
+    let mut end_sound_flag = false;
 
     let player_sprite = get_player_sprite();
     let player_starting_position = vec2(1.5, GRID_COLS_COUNT as f32 / 2.0);
@@ -186,6 +203,7 @@ async fn main() {
 
                 let tile_size = get_tile_size();
                 if is_mouse_button_released(MouseButton::Left) {
+                    let mut success = false;
                     for resource in &mut resources {
                         if is_mouse_over_resource(&resource.position, tile_size) {
                             if ResourceState::TakenByPlayer == resource.state {
@@ -201,8 +219,15 @@ async fn main() {
 
                             if distance < player.reach * tile_size {
                                 resource.state = ResourceState::TakenByPlayer;
+                                success = true;
+                                break;
                             }
                         }
+                    }
+                    if success {
+                        play_sound_once(&success_sound);
+                    } else {
+                        play_sound_once(&failure_sound);
                     }
                 }
 
@@ -210,20 +235,38 @@ async fn main() {
 
                 if player.score >= WIN_CONDITION || enemy.score >= WIN_CONDITION {
                     status = GameStatus::GameOver;
+                    end_sound_flag = false;
                 }
 
                 draw_frame(&player, &enemy, &resources, &texture_manager);
             }
             GameStatus::GameOver => {
                 draw_frame(&player, &enemy, &resources, &texture_manager);
-                let winner_label = if player.score >= WIN_CONDITION {
+                let player_won = player.score >= WIN_CONDITION;
+                let winner_label = if player_won {
                     "Player wins!"
                 } else {
                     "Enemy wins!"
                 };
+                if !end_sound_flag {
+                    stop_sound(&bgm);
+                    if player_won {
+                        play_sound_once(&win_sound);
+                    } else {
+                        play_sound_once(&lose_sound);
+                    }
+                    end_sound_flag = true;
+                }
                 let label = "Game Over, ".to_owned() + winner_label;
                 let clicked = show_game_over_button(&label);
                 if clicked {
+                    play_sound(
+                        &bgm,
+                        PlaySoundParams {
+                            volume: BGM_VOLUME,
+                            looped: true,
+                        },
+                    );
                     player.position = player_starting_position;
                     player.score = 0.0;
                     enemy.position = enemy_starting_position;
