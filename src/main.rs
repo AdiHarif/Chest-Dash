@@ -2,10 +2,12 @@ mod ai;
 mod draw;
 mod player;
 mod player_sprite;
+mod texture_manager;
 
 use draw::*;
 use player::*;
 use player_sprite::get_player_sprite;
+use texture_manager::TextureManager;
 
 use macroquad::prelude::*;
 
@@ -106,19 +108,14 @@ fn update_score(player: &mut Player, enemy: &mut Player, resources: &Vec<Resourc
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let chest_texture = load_texture("assets/chest.png").await.unwrap();
-    let enemy_chest_texture = load_texture("assets/enemy_chest.png").await.unwrap();
-    let gold_texture = load_texture("assets/gold.png").await.unwrap();
-    let tile_decorations_texture = load_texture("assets/tile_decorations.png").await.unwrap();
-    let player_texture = load_texture("assets/player_spritesheet.png").await.unwrap();
-    let enemy_texture = load_texture("assets/enemy_spritesheet.png").await.unwrap();
-    build_textures_atlas();
+    let mut texture_manager = TextureManager::new();
+    texture_manager.load_all_textures().await;
 
     let player_sprite = get_player_sprite();
     let player_starting_position = vec2(1.5 * TILE_SIZE, screen_height() / 2.0);
     let mut player = Player::new(
         player_starting_position,
-        player_texture,
+        texture_manager.get("player").unwrap().clone(),
         player_sprite,
         PLAYER_SPEED,
         PLAYER_REACH_DISTANCE,
@@ -131,7 +128,7 @@ async fn main() {
     );
     let mut enemy = Player::new(
         enemy_starting_position,
-        enemy_texture,
+        texture_manager.get("enemy").unwrap().clone(),
         enemy_sprite,
         PLAYER_SPEED / 2.0,
         PLAYER_REACH_DISTANCE / 2.0,
@@ -183,14 +180,26 @@ async fn main() {
 
         update_score(&mut player, &mut enemy, &resources);
 
-        draw_terrain(TILE_SIZE, &tile_decorations_texture);
+        draw_terrain(TILE_SIZE, &texture_manager.get("tile_decorations").unwrap());
         for resource in &resources {
-            draw_resource(&resource.position, TILE_SIZE, &gold_texture);
+            draw_resource(
+                &resource.position,
+                TILE_SIZE,
+                &texture_manager.get("gold").unwrap(),
+            );
             if resource.state == ResourceState::TakenByPlayer {
-                draw_chest(&resource.position, TILE_SIZE, &chest_texture);
+                draw_chest(
+                    &resource.position,
+                    TILE_SIZE,
+                    &texture_manager.get("chest").unwrap(),
+                );
             }
             if resource.state == ResourceState::TakenByEnemy {
-                draw_chest(&resource.position, TILE_SIZE, &enemy_chest_texture);
+                draw_chest(
+                    &resource.position,
+                    TILE_SIZE,
+                    &texture_manager.get("enemy_chest").unwrap(),
+                );
             }
         }
         draw_grid_lines(TILE_SIZE);
