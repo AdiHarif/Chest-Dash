@@ -1,3 +1,4 @@
+mod ai;
 mod draw;
 mod player;
 mod player_sprite;
@@ -126,7 +127,7 @@ async fn main() {
         }
 
         player.update(&direction);
-        enemy.update(&vec2(0.0, 0.0));
+        ai::update_enemy(&mut resources, &mut enemy);
 
         if is_mouse_button_released(MouseButton::Left) {
             for resource in &mut resources {
