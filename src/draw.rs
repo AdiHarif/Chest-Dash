@@ -146,7 +146,10 @@ pub fn draw_frame(
 
     draw_player(&enemy);
     draw_player(&player);
+}
 
+pub fn draw_bounding_box() {
+    let tile_size = get_tile_size();
     draw_rectangle_lines_ex(
         0.0,
         0.0,
