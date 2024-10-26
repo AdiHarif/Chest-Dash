@@ -1,7 +1,7 @@
 use macroquad::experimental::animation::*;
 use macroquad::prelude::*;
 
-use crate::get_tile_size;
+use crate::{get_tile_size, GRID_COLS_COUNT, GRID_ROWS_COUNT};
 
 pub struct Player {
     pub position: Vec2,
@@ -35,6 +35,14 @@ impl Player {
     pub fn update(&mut self, direction: &Vec2) {
         self.flip_x = direction.x < 0.0;
         self.position += *direction * (self.speed * get_tile_size() * get_frame_time());
+        let tile_size = get_tile_size();
+        self.position = self.position.clamp(
+            Vec2::new(0.0, 0.0),
+            Vec2::new(
+                GRID_COLS_COUNT as f32 * tile_size,
+                GRID_ROWS_COUNT as f32 * tile_size,
+            ),
+        );
         match direction {
             Vec2 { x: 0.0, y: 0.0 } => {
                 self.sprite.set_animation(0);

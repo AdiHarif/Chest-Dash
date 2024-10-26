@@ -125,6 +125,8 @@ fn draw_scores(player_score: f32, enemy_score: f32) {
 }
 
 use crate::texture_manager::TextureManager;
+use crate::GRID_COLS_COUNT;
+use crate::GRID_ROWS_COUNT;
 use crate::{Resource, ResourceState};
 
 pub fn draw_frame(
@@ -162,4 +164,16 @@ pub fn draw_frame(
     draw_player(&player);
 
     draw_scores(player.score, enemy.score);
+
+    draw_rectangle_lines_ex(
+        0.0,
+        0.0,
+        GRID_COLS_COUNT as f32 * tile_size,
+        GRID_ROWS_COUNT as f32 * tile_size,
+        5.0,
+        DrawRectangleParams {
+            color: BLACK,
+            ..Default::default()
+        },
+    );
 }
