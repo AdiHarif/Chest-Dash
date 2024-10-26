@@ -3,13 +3,18 @@ mod draw;
 mod player;
 mod player_sprite;
 mod texture_manager;
+mod ui;
 
 use draw::*;
 use player::*;
 use player_sprite::get_player_sprite;
 use texture_manager::TextureManager;
+use ui::*;
 
-use macroquad::prelude::*;
+use macroquad::{
+    prelude::*,
+    ui::{root_ui, Skin},
+};
 
 const TILE_SIZE: f32 = 64.0;
 
@@ -66,6 +71,7 @@ const GRID_ROWS_COUNT: u32 = 15;
 const GRID_COLS_COUNT: u32 = 15;
 const PLAYER_REACH_DISTANCE: f32 = 2.5 * TILE_SIZE;
 const PLAYER_SPEED: f32 = TILE_SIZE * 3.0;
+const WIN_CONDITION: f32 = 50.0;
 
 fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
     let resources_rows_spacing = grid_rows_count / (RESOURCES_ROWS_COUNT + 1) + 1;
@@ -106,10 +112,18 @@ fn update_score(player: &mut Player, enemy: &mut Player, resources: &Vec<Resourc
     enemy.score += enemy_chests as f32 * frame_duration;
 }
 
+enum GameStatus {
+    Starting,
+    Running,
+    GameOver,
+}
+
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut texture_manager = TextureManager::new();
     texture_manager.load_all_textures().await;
+
+    initialize_ui();
 
     let player_sprite = get_player_sprite();
     let player_starting_position = vec2(1.5 * TILE_SIZE, screen_height() / 2.0);
@@ -136,51 +150,85 @@ async fn main() {
 
     let mut resources = initalize_resources(GRID_ROWS_COUNT, GRID_COLS_COUNT);
 
+    let mut status = GameStatus::Starting;
+
     loop {
         clear_background(Color::from_hex(0x9d7658));
-        let mut direction = vec2(0.0, 0.0);
-        if is_key_down(KeyCode::W) {
-            direction.y -= 1.0;
-        }
-        if is_key_down(KeyCode::S) {
-            direction.y += 1.0;
-        }
-        if is_key_down(KeyCode::A) {
-            direction.x -= 1.0;
-        }
-        if is_key_down(KeyCode::D) {
-            direction.x += 1.0;
-        }
-        if (direction.x != 0.0 || direction.y != 0.0) {
-            direction = direction.normalize();
-        }
+        match status {
+            GameStatus::Starting => {
+                let clicked = show_start_button();
+                if clicked {
+                    status = GameStatus::Running;
+                }
+            }
+            GameStatus::Running => {
+                let mut direction = vec2(0.0, 0.0);
+                if is_key_down(KeyCode::W) {
+                    direction.y -= 1.0;
+                }
+                if is_key_down(KeyCode::S) {
+                    direction.y += 1.0;
+                }
+                if is_key_down(KeyCode::A) {
+                    direction.x -= 1.0;
+                }
+                if is_key_down(KeyCode::D) {
+                    direction.x += 1.0;
+                }
+                if (direction.x != 0.0 || direction.y != 0.0) {
+                    direction = direction.normalize();
+                }
 
-        player.update(&direction);
-        ai::update_enemy(&mut resources, &mut enemy);
+                player.update(&direction);
+                ai::update_enemy(&mut resources, &mut enemy);
 
-        if is_mouse_button_released(MouseButton::Left) {
-            for resource in &mut resources {
-                if is_mouse_over_resource(&resource.position, TILE_SIZE) {
-                    if ResourceState::TakenByPlayer == resource.state {
-                        continue;
+                if is_mouse_button_released(MouseButton::Left) {
+                    for resource in &mut resources {
+                        if is_mouse_over_resource(&resource.position, TILE_SIZE) {
+                            if ResourceState::TakenByPlayer == resource.state {
+                                continue;
+                            }
+
+                            let resource_screen_position = vec2(
+                                (resource.position.x as f32 + 0.5) * TILE_SIZE,
+                                (resource.position.y as f32 + 0.5) * TILE_SIZE,
+                            );
+                            let distance = (resource_screen_position - player.position).length();
+
+                            if distance < PLAYER_REACH_DISTANCE {
+                                resource.state = ResourceState::TakenByPlayer;
+                            }
+                        }
                     }
+                }
 
-                    let resource_screen_position = vec2(
-                        (resource.position.x as f32 + 0.5) * TILE_SIZE,
-                        (resource.position.y as f32 + 0.5) * TILE_SIZE,
-                    );
-                    let distance = (resource_screen_position - player.position).length();
+                update_score(&mut player, &mut enemy, &resources);
 
-                    if distance < PLAYER_REACH_DISTANCE {
-                        resource.state = ResourceState::TakenByPlayer;
-                    }
+                if player.score >= WIN_CONDITION || enemy.score >= WIN_CONDITION {
+                    status = GameStatus::GameOver;
+                }
+
+                draw_frame(&player, &enemy, &resources, &texture_manager);
+            }
+            GameStatus::GameOver => {
+                draw_frame(&player, &enemy, &resources, &texture_manager);
+                let winner_label = if player.score >= WIN_CONDITION {
+                    "Player wins!"
+                } else {
+                    "Enemy wins!"
+                };
+                let label = "Game Over, ".to_owned() + winner_label;
+                let clicked = show_game_over_button(&label);
+                if clicked {
+                    player.position = player_starting_position;
+                    player.score = 0.0;
+                    enemy.position = enemy_starting_position;
+                    enemy.score = 0.0;
+                    resources = initalize_resources(GRID_ROWS_COUNT, GRID_COLS_COUNT);
+                    status = GameStatus::Running;
                 }
             }
         }
-
-        update_score(&mut player, &mut enemy, &resources);
-
-        draw_frame(&player, &enemy, &resources, &texture_manager);
 
         draw_text(
             &format!("FPS: {}", get_fps()),
