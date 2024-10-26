@@ -155,7 +155,6 @@ async fn main() {
 
     loop {
         clear_background(Color::from_hex(0x9d7658));
-        draw_bounding_box();
         show_hud(player.score, enemy.score);
         match status {
             GameStatus::Starting => {
@@ -234,6 +233,7 @@ async fn main() {
                 }
             }
         }
+        draw_bounding_box();
         next_frame().await
     }
 }
