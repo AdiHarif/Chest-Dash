@@ -4,7 +4,7 @@ use crate::player_sprite::PLAYER_DEST_SIZE;
 use crate::GridPosition;
 use crate::Player;
 
-pub fn draw_player(player: &Player) {
+fn draw_player(player: &Player) {
     let Player {
         position,
         texture,
@@ -27,7 +27,7 @@ pub fn draw_player(player: &Player) {
     );
 }
 
-pub fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: &Texture2D) {
+fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: &Texture2D) {
     let screen_position = Vec2 {
         x: grid_position.x as f32 * chest_size,
         y: grid_position.y as f32 * chest_size,
@@ -45,11 +45,7 @@ pub fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: 
     );
 }
 
-pub fn draw_resource(
-    grid_position: &GridPosition,
-    resource_size: f32,
-    resource_texture: &Texture2D,
-) {
+fn draw_resource(grid_position: &GridPosition, resource_size: f32, resource_texture: &Texture2D) {
     draw_texture_ex(
         resource_texture,
         grid_position.x as f32 * resource_size,
@@ -62,7 +58,7 @@ pub fn draw_resource(
     );
 }
 
-pub fn draw_grid_lines(cell_size: f32) {
+fn draw_grid_lines(cell_size: f32) {
     let grid_color = Color::new(0.0, 0.0, 0.0, 0.5);
 
     let rows_count = (screen_height() / cell_size) as u32;
@@ -79,7 +75,7 @@ pub fn draw_grid_lines(cell_size: f32) {
     }
 }
 
-pub fn draw_terrain(cell_size: f32, tile_decorations_texture: &Texture2D) {
+fn draw_terrain(cell_size: f32, tile_decorations_texture: &Texture2D) {
     let tile_rows_count = 1;
     let tile_cols_count = 4;
     let grid_rows_count = (screen_height() / cell_size) as i32 + tile_rows_count;
@@ -110,7 +106,7 @@ pub fn draw_terrain(cell_size: f32, tile_decorations_texture: &Texture2D) {
     }
 }
 
-pub fn draw_scores(player_score: f32, enemy_score: f32) {
+fn draw_scores(player_score: f32, enemy_score: f32) {
     let score_font_size = 50.0;
     let score_height = 50.0;
 
@@ -125,4 +121,44 @@ pub fn draw_scores(player_score: f32, enemy_score: f32) {
         score_font_size,
         BLACK,
     );
+}
+
+use crate::texture_manager::TextureManager;
+use crate::TILE_SIZE;
+use crate::{Resource, ResourceState};
+
+pub fn draw_frame(
+    player: &Player,
+    enemy: &Player,
+    resources: &Vec<Resource>,
+    texture_manager: &TextureManager,
+) {
+    draw_terrain(TILE_SIZE, &texture_manager.get("tile_decorations").unwrap());
+    for resource in resources {
+        draw_resource(
+            &resource.position,
+            TILE_SIZE,
+            &texture_manager.get("gold").unwrap(),
+        );
+        if resource.state == ResourceState::TakenByPlayer {
+            draw_chest(
+                &resource.position,
+                TILE_SIZE,
+                &texture_manager.get("chest").unwrap(),
+            );
+        }
+        if resource.state == ResourceState::TakenByEnemy {
+            draw_chest(
+                &resource.position,
+                TILE_SIZE,
+                &texture_manager.get("enemy_chest").unwrap(),
+            );
+        }
+    }
+    draw_grid_lines(TILE_SIZE);
+
+    draw_player(&enemy);
+    draw_player(&player);
+
+    draw_scores(player.score, enemy.score);
 }

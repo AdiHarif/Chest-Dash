@@ -180,34 +180,7 @@ async fn main() {
 
         update_score(&mut player, &mut enemy, &resources);
 
-        draw_terrain(TILE_SIZE, &texture_manager.get("tile_decorations").unwrap());
-        for resource in &resources {
-            draw_resource(
-                &resource.position,
-                TILE_SIZE,
-                &texture_manager.get("gold").unwrap(),
-            );
-            if resource.state == ResourceState::TakenByPlayer {
-                draw_chest(
-                    &resource.position,
-                    TILE_SIZE,
-                    &texture_manager.get("chest").unwrap(),
-                );
-            }
-            if resource.state == ResourceState::TakenByEnemy {
-                draw_chest(
-                    &resource.position,
-                    TILE_SIZE,
-                    &texture_manager.get("enemy_chest").unwrap(),
-                );
-            }
-        }
-        draw_grid_lines(TILE_SIZE);
-
-        draw_player(&enemy);
-        draw_player(&player);
-
-        draw_scores(player.score, enemy.score);
+        draw_frame(&player, &enemy, &resources, &texture_manager);
 
         draw_text(
             &format!("FPS: {}", get_fps()),
