@@ -13,7 +13,8 @@ fn draw_player(player: &Player) {
     } = player;
     let player_dest_size = get_tile_size() * 3.0;
 
-    let Vec2 { x, y } = *position - vec2(player_dest_size / 2.0, player_dest_size / 2.0);
+    let Vec2 { x, y } =
+        (*position * get_tile_size()) - vec2(player_dest_size / 2.0, player_dest_size / 2.0);
     draw_texture_ex(
         texture,
         x,

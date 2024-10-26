@@ -16,7 +16,7 @@ pub fn get_closest_resource_index(resources: &Vec<Resource>, position: &Vec2) ->
                 x: (resource.position.x as f32 + 0.5) * tile_size,
                 y: (resource.position.y as f32 + 0.5) * tile_size,
             };
-            let distance = position.distance(resource_position);
+            let distance = (*position * get_tile_size()).distance(resource_position);
             if distance < closest_distance {
                 closest_distance = distance;
                 closest_resource_index = Some(i);
@@ -41,11 +41,13 @@ pub fn update_enemy(resources: &mut Vec<Resource>, enemy: &mut Player) {
             x: (closest_resource.position.x as f32 + 0.5) * tile_size,
             y: (closest_resource.position.y as f32 + 0.5) * tile_size,
         };
-        if enemy.position.distance(closest_resource_position) < enemy.reach * tile_size {
+        if (enemy.position * tile_size).distance(closest_resource_position)
+            < enemy.reach * tile_size
+        {
             resources[closest_resource_index].state = ResourceState::TakenByEnemy;
             enemy.update(&vec2(0.0, 0.0));
         } else {
-            let direction = (closest_resource_position - enemy.position).normalize();
+            let direction = (closest_resource_position - (enemy.position * tile_size)).normalize();
             enemy.update(&direction);
         }
     }

@@ -120,7 +120,7 @@ async fn main() {
     initialize_ui();
 
     let player_sprite = get_player_sprite();
-    let player_starting_position = vec2(1.5 * get_tile_size(), screen_height() / 2.0);
+    let player_starting_position = vec2(1.5, GRID_COLS_COUNT as f32 / 2.0);
     let mut player = Player::new(
         player_starting_position,
         texture_manager.get("player").unwrap().clone(),
@@ -131,7 +131,7 @@ async fn main() {
 
     let enemy_sprite = get_player_sprite();
     let enemy_starting_position = vec2(
-        (GRID_COLS_COUNT as f32 * get_tile_size()) - player_starting_position.x,
+        GRID_COLS_COUNT as f32 - player_starting_position.x,
         player_starting_position.y,
     );
     let mut enemy = Player::new(
@@ -188,7 +188,8 @@ async fn main() {
                                 (resource.position.x as f32 + 0.5) * tile_size,
                                 (resource.position.y as f32 + 0.5) * tile_size,
                             );
-                            let distance = (resource_screen_position - player.position).length();
+                            let distance =
+                                (resource_screen_position - (player.position * tile_size)).length();
 
                             if distance < player.reach * tile_size {
                                 resource.state = ResourceState::TakenByPlayer;

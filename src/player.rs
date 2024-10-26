@@ -34,14 +34,10 @@ impl Player {
 
     pub fn update(&mut self, direction: &Vec2) {
         self.flip_x = direction.x < 0.0;
-        self.position += *direction * (self.speed * get_tile_size() * get_frame_time());
-        let tile_size = get_tile_size();
+        self.position += *direction * (self.speed * get_frame_time());
         self.position = self.position.clamp(
             Vec2::new(0.0, 0.0),
-            Vec2::new(
-                GRID_COLS_COUNT as f32 * tile_size,
-                GRID_ROWS_COUNT as f32 * tile_size,
-            ),
+            Vec2::new(GRID_COLS_COUNT as f32, GRID_ROWS_COUNT as f32),
         );
         match direction {
             Vec2 { x: 0.0, y: 0.0 } => {
