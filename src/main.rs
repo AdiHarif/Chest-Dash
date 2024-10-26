@@ -34,9 +34,16 @@ struct Resource {
     state: ResourceState,
 }
 
+fn get_x_offset() -> f32 {
+    if screen_height() < screen_width() {
+        return (screen_width() - GRID_COLS_COUNT as f32 * get_tile_size()) / 2.0;
+    }
+    0.0
+}
+
 fn is_mouse_over_resource(resource_position: &GridPosition, resource_size: f32) -> bool {
     let mouse_vector = Vec2 {
-        x: mouse_position().0,
+        x: mouse_position().0 - get_x_offset(),
         y: mouse_position().1,
     };
     let mouse_grid_position = GridPosition::from_screen_coordinates(mouse_vector, resource_size);

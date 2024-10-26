@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 
 use crate::get_tile_size;
+use crate::get_x_offset;
 use crate::GridPosition;
 use crate::Player;
 
@@ -12,12 +13,12 @@ fn draw_player(player: &Player) {
         ..
     } = player;
     let player_dest_size = get_tile_size() * 3.0;
-
+    let x_offset = get_x_offset();
     let Vec2 { x, y } =
         (*position * get_tile_size()) - vec2(player_dest_size / 2.0, player_dest_size / 2.0);
     draw_texture_ex(
         texture,
-        x,
+        x + x_offset,
         y,
         WHITE,
         DrawTextureParams {
@@ -31,7 +32,7 @@ fn draw_player(player: &Player) {
 
 fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: &Texture2D) {
     let screen_position = Vec2 {
-        x: grid_position.x as f32 * chest_size,
+        x: grid_position.x as f32 * chest_size + get_x_offset(),
         y: grid_position.y as f32 * chest_size,
     };
     let Vec2 { x, y } = screen_position;
@@ -50,7 +51,7 @@ fn draw_chest(grid_position: &GridPosition, chest_size: f32, chest_texture: &Tex
 fn draw_resource(grid_position: &GridPosition, resource_size: f32, resource_texture: &Texture2D) {
     draw_texture_ex(
         resource_texture,
-        grid_position.x as f32 * resource_size,
+        grid_position.x as f32 * resource_size + get_x_offset(),
         grid_position.y as f32 * resource_size,
         WHITE,
         DrawTextureParams {
@@ -64,15 +65,16 @@ fn draw_grid_lines(cell_size: f32) {
     let grid_color = Color::new(0.0, 0.0, 0.0, 0.5);
 
     let rows_count = (screen_height() / cell_size) as u32;
-    let cols_count = (screen_width() / cell_size) as u32;
+    let cols_count = (screen_width() / cell_size) as i32;
 
     for i in 0..rows_count + 1 {
         let y = i as f32 * cell_size;
         draw_line(0.0, y, screen_width(), y, 1.0, grid_color);
     }
 
-    for i in 0..cols_count + 1 {
-        let x = i as f32 * cell_size;
+    let column_drawing_start = -(get_x_offset() / get_tile_size()) as i32;
+    for i in column_drawing_start..cols_count + 1 {
+        let x = i as f32 * cell_size + get_x_offset();
         draw_line(x, 0.0, x, screen_height(), 1.0, grid_color);
     }
 }
@@ -83,13 +85,15 @@ fn draw_terrain(cell_size: f32, tile_decorations_texture: &Texture2D) {
     let grid_rows_count = (screen_height() / cell_size) as i32 + tile_rows_count;
     let grid_cols_count = (screen_width() / cell_size) as i32 + tile_cols_count;
 
+    let column_drawing_start = -(get_x_offset() / get_tile_size() + 1.0) as i32;
+
     for i in (0..grid_rows_count).step_by(tile_rows_count as usize) {
-        for j in (0..grid_cols_count).step_by(tile_cols_count as usize) {
+        for j in (column_drawing_start..grid_cols_count).step_by(tile_cols_count as usize) {
             let mut row_stagger = i % 4;
             if row_stagger > 1 {
                 row_stagger = 5 - row_stagger;
             }
-            let x = (j - row_stagger) as f32 * cell_size;
+            let x = (j - row_stagger) as f32 * cell_size + get_x_offset();
             let y = i as f32 * cell_size;
             draw_texture_ex(
                 tile_decorations_texture,
@@ -151,7 +155,7 @@ pub fn draw_frame(
 pub fn draw_bounding_box() {
     let tile_size = get_tile_size();
     draw_rectangle_lines_ex(
-        0.0,
+        get_x_offset(),
         0.0,
         GRID_COLS_COUNT as f32 * tile_size,
         GRID_ROWS_COUNT as f32 * tile_size,

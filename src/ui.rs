@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use macroquad::ui::{root_ui, Skin};
 
-use crate::{get_tile_size, GRID_COLS_COUNT, GRID_ROWS_COUNT};
+use crate::{get_tile_size, get_x_offset, GRID_COLS_COUNT, GRID_ROWS_COUNT};
 
 pub fn initialize_ui() {
     let style = root_ui().style_builder().font_size(40).color(WHITE).build();
@@ -18,7 +18,7 @@ pub fn show_start_button() -> bool {
     let tile_size = get_tile_size();
     return root_ui().button(
         Vec2 {
-            x: (GRID_COLS_COUNT as f32 * tile_size - dimensions.x) / 2.0,
+            x: (GRID_COLS_COUNT as f32 * tile_size - dimensions.x) / 2.0 + get_x_offset(),
             y: (GRID_ROWS_COUNT as f32 * tile_size - dimensions.y) / 2.0,
         },
         "Start",
@@ -26,12 +26,14 @@ pub fn show_start_button() -> bool {
 }
 
 pub fn show_game_over_button(label: &String) -> bool {
+    let x_offset = get_x_offset();
+
     let label_dimensions = root_ui().calc_size(&label);
     let tile_size = get_tile_size();
     let box_width = GRID_COLS_COUNT as f32 * tile_size;
     let box_height = GRID_ROWS_COUNT as f32 * tile_size;
     let label_position = Vec2 {
-        x: (box_width - label_dimensions.x) / 2.0,
+        x: (box_width - label_dimensions.x) / 2.0 + x_offset,
         y: (box_height / 2.0) - label_dimensions.y,
     };
     draw_rectangle(
@@ -45,7 +47,7 @@ pub fn show_game_over_button(label: &String) -> bool {
     let button_label = "Click here to restart";
     let button_dimensions = root_ui().calc_size(&button_label);
     let button_position = Vec2 {
-        x: (box_width - button_dimensions.x) / 2.0,
+        x: (box_width - button_dimensions.x) / 2.0 + x_offset,
         y: (box_height / 2.0),
     };
 
@@ -53,14 +55,19 @@ pub fn show_game_over_button(label: &String) -> bool {
 }
 
 pub fn show_hud(player_score: f32, enemy_score: f32) {
+    let x_offset = get_x_offset();
+
     let player_text = format!("Player: {:>6.2}", player_score);
-    let position = Vec2 { x: 10.0, y: 10.0 };
+    let position = Vec2 {
+        x: 10.0 + x_offset,
+        y: 10.0,
+    };
     root_ui().label(position, &player_text);
 
     let enemy_text = format!("Enemy: {:>6.2}", enemy_score);
     let dimensions = root_ui().calc_size(&player_text);
     let position = Vec2 {
-        x: GRID_COLS_COUNT as f32 * get_tile_size() - dimensions.x,
+        x: GRID_COLS_COUNT as f32 * get_tile_size() - dimensions.x + x_offset,
         y: 10.0,
     };
     root_ui().label(position, &enemy_text);
@@ -68,7 +75,7 @@ pub fn show_hud(player_score: f32, enemy_score: f32) {
     let fps_label = &format!("FPS: {}", get_fps());
     let dimensions = root_ui().calc_size(fps_label);
     let position = Vec2 {
-        x: 10.0,
+        x: 10.0 + x_offset,
         y: (GRID_ROWS_COUNT as f32 * get_tile_size() - dimensions.y),
     };
     root_ui().label(position, fps_label);
