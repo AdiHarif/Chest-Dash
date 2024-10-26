@@ -3,7 +3,6 @@ use macroquad::prelude::*;
 use crate::Player;
 use crate::Resource;
 use crate::ResourceState;
-use crate::PLAYER_REACH_DISTANCE;
 use crate::TILE_SIZE;
 
 pub fn get_closest_resource_index(resources: &Vec<Resource>, position: &Vec2) -> Option<usize> {
@@ -40,7 +39,7 @@ pub fn update_enemy(resources: &mut Vec<Resource>, enemy: &mut Player) {
             x: (closest_resource.position.x as f32 + 0.5) * TILE_SIZE,
             y: (closest_resource.position.y as f32 + 0.5) * TILE_SIZE,
         };
-        if enemy.position.distance(closest_resource_position) < PLAYER_REACH_DISTANCE {
+        if enemy.position.distance(closest_resource_position) < enemy.reach {
             resources[closest_resource_index].state = ResourceState::TakenByEnemy;
             enemy.update(&vec2(0.0, 0.0));
         } else {

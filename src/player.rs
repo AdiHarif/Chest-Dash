@@ -6,16 +6,24 @@ pub struct Player {
     pub texture: Texture2D,
     pub sprite: AnimatedSprite,
     speed: f32,
+    pub reach: f32,
     pub flip_x: bool,
 }
 
 impl Player {
-    pub fn new(position: Vec2, texture: Texture2D, sprite: AnimatedSprite) -> Self {
+    pub fn new(
+        position: Vec2,
+        texture: Texture2D,
+        sprite: AnimatedSprite,
+        speed: f32,
+        reach: f32,
+    ) -> Self {
         Self {
             position,
             texture,
             sprite,
-            speed: 5.0,
+            speed,
+            reach,
             flip_x: false,
         }
     }

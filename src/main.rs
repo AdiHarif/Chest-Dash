@@ -63,6 +63,7 @@ const RESOURCES_ROWS_COUNT: u32 = 3;
 const GRID_ROWS_COUNT: u32 = 15;
 const GRID_COLS_COUNT: u32 = 15;
 const PLAYER_REACH_DISTANCE: f32 = 2.5 * TILE_SIZE;
+const PLAYER_SPEED: f32 = 5.0;
 
 fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
     let resources_rows_spacing = grid_rows_count / (RESOURCES_ROWS_COUNT + 1) + 1;
@@ -99,14 +100,26 @@ async fn main() {
 
     let player_sprite = get_player_sprite();
     let player_starting_position = vec2(1.5 * TILE_SIZE, screen_height() / 2.0);
-    let mut player = Player::new(player_starting_position, player_texture, player_sprite);
+    let mut player = Player::new(
+        player_starting_position,
+        player_texture,
+        player_sprite,
+        PLAYER_SPEED,
+        PLAYER_REACH_DISTANCE,
+    );
 
     let enemy_sprite = get_player_sprite();
     let enemy_starting_position = vec2(
         screen_width() - player_starting_position.x,
         player_starting_position.y,
     );
-    let mut enemy = Player::new(enemy_starting_position, enemy_texture, enemy_sprite);
+    let mut enemy = Player::new(
+        enemy_starting_position,
+        enemy_texture,
+        enemy_sprite,
+        PLAYER_SPEED / 2.0,
+        PLAYER_REACH_DISTANCE / 2.0,
+    );
 
     let mut resources = initalize_resources(GRID_ROWS_COUNT, GRID_COLS_COUNT);
 
