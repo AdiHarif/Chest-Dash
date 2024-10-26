@@ -67,7 +67,8 @@ const GRID_COLS_COUNT: u32 = 15;
 const PLAYER_REACH_DISTANCE: f32 = 2.5; // tiles
 const PLAYER_SPEED: f32 = 3.0; // tiles per second
 const WIN_CONDITION: f32 = 50.0;
-const BGM_VOLUME: f32 = 0.25;
+const SFX_VOLUME: f32 = 0.2;
+const BGM_VOLUME: f32 = 0.1;
 
 fn initalize_resources(grid_rows_count: u32, grid_cols_count: u32) -> Vec<Resource> {
     let resources_rows_spacing = grid_rows_count / (RESOURCES_ROWS_COUNT + 1) + 1;
@@ -228,9 +229,21 @@ async fn main() {
                         }
                     }
                     if success {
-                        play_sound_once(&success_sound);
+                        play_sound(
+                            &success_sound,
+                            PlaySoundParams {
+                                volume: SFX_VOLUME,
+                                looped: false,
+                            },
+                        );
                     } else {
-                        play_sound_once(&failure_sound);
+                        play_sound(
+                            &failure_sound,
+                            PlaySoundParams {
+                                volume: SFX_VOLUME,
+                                looped: false,
+                            },
+                        );
                     }
                 }
 
@@ -254,9 +267,21 @@ async fn main() {
                 if !end_sound_flag {
                     stop_sound(&bgm);
                     if player_won {
-                        play_sound_once(&win_sound);
+                        play_sound(
+                            &win_sound,
+                            PlaySoundParams {
+                                volume: SFX_VOLUME,
+                                looped: false,
+                            },
+                        );
                     } else {
-                        play_sound_once(&lose_sound);
+                        play_sound(
+                            &lose_sound,
+                            PlaySoundParams {
+                                volume: SFX_VOLUME,
+                                looped: false,
+                            },
+                        );
                     }
                     end_sound_flag = true;
                 }
