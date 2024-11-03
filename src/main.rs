@@ -122,7 +122,7 @@ fn get_tile_size() -> f32 {
     )
 }
 
-#[macroquad::main("MyGame")]
+#[macroquad::main("Chest Dash")]
 async fn main() {
     draw_loading_screen();
     next_frame().await;
